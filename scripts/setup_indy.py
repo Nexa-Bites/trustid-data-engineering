@@ -1,22 +1,32 @@
-from storage import indy_ledger
+# 📜 scripts/setup_indy.py
+from storage.indy_ledger import IndyLedger
 import asyncio
 import logging
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 async def init_indy():
+    """Initialize the Indy ledger with predefined schemas."""
+    indy = IndyLedger()
     try:
         logger.info("Initializing Hyperledger Indy schemas")
-        indy = indy_ledger.IndyLedger()
         await indy.connect()
-        await indy.register_schema("NationalID", "1.0", ["full_name", "id_number", "dob"])
-        await indy.register_schema("Passport", "1.0", ["holder_name", "passport_number", "issue_date"])
-        await indy.close()
+
+        # Pre-register known schemas
+        schemas = [
+            ("NationalID", "1.0", ["full_name", "id_number", "dob"]),
+            ("Passport", "1.0", ["holder_name", "passport_number", "issue_date"]),
+        ]
+
+        for schema_name, schema_version, attributes in schemas:
+            await indy.register_schema(schema_name, schema_version, attributes)
+
         logger.info("Indy initialization complete")
     except Exception as e:
-        logger.error(f"Indy setup failed: {e}", extra={"error": str(e)})
+        logger.error(f"Indy setup failed: {e}")
         raise
+    finally:
+        await indy.close()
 
 if __name__ == "__main__":
     asyncio.run(init_indy())
