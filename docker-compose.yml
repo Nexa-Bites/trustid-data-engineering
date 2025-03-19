@@ -1,13 +1,46 @@
+# version: "3.8"
+
+# services:
+#   postgres:
+#     image: postgres:13
+#     restart: always
+#     environment:
+#       POSTGRES_USER: ${POSTGRES_USER}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#       POSTGRES_DB: ${POSTGRES_DB}
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+#   app:
+#     build: .
+#     restart: always
+#     depends_on:
+#       - postgres
+#     env_file:
+#       - .env  # ✅ Load environment variables
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - ./wallet:/app/wallet  # ✅ Persist Indy wallet across restarts
+#       - ./entrypoint.sh:/app/entrypoint.sh  # ✅ Ensure entrypoint is properly mounted
+#     entrypoint: ["/bin/sh", "/app/entrypoint.sh"]
+
+# volumes:
+#   postgres_data:
+
+
 version: "3.8"
 
 services:
   postgres:
     image: postgres:13
-    restart: always  # Ensures Postgres restarts on failure
+    restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: trustid
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -15,16 +48,18 @@ services:
 
   app:
     build: .
-    restart: always  # Ensures app restarts if it crashes
+    restart: always
     depends_on:
       - postgres
     env_file:
-      - .env  # ✅ Load environment variables from .env file
+      - .env  # Load environment variables
     ports:
       - "8000:8000"
     volumes:
-      - ./keys:/app/keys  # Persist keys across restarts
-      - ./entrypoint.sh:/app/entrypoint.sh  # Ensures entrypoint script is mounted properly
+      - ./wallet:/app/wallet  # Persist Indy wallet across restarts
+      - ./.env:/app/.env  # Mount .env file from root directory
+      - ./keys:/app/keys  # Persist keys directory
+      - ./entrypoint.sh:/app/entrypoint.sh  # Ensure entrypoint is properly mounted
     entrypoint: ["/bin/sh", "/app/entrypoint.sh"]
 
 volumes:

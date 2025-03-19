@@ -65,3 +65,8 @@ def create_project_structure():
 if __name__ == "__main__":
     create_project_structure()
     print("Project structure created successfully.")
+
+
+
+
+# latest: digest: sha256:8831244eb31a7db3b99070fb956c42870314e0a79715cac7ec543ad8938d184a size: 3892
