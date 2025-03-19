@@ -1,30 +1,19 @@
-version: "3.8"
+FROM python:3.9-slim
 
-services:
-  postgres:
-    image: postgres:13
-    restart: always  # Ensures Postgres restarts on failure
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: trustid
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+# Set the working directory
+WORKDIR /app
 
-  app:
-    build: .
-    restart: always  # Ensures app restarts if it crashes
-    depends_on:
-      - postgres
-    environment:
-      POSTGRES_URL: "postgresql://user:password@postgres:5432/trustid"
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./docker/entrypoint.sh:/app/docker/entrypoint.sh  # Ensure entrypoint.sh is mounted
-    entrypoint: ["/bin/sh", "/app/docker/entrypoint.sh"]  # Explicitly define entrypoint
+# Copy and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-volumes:
-  postgres_data:
+# Copy the entire project
+COPY . .
+
+# Copy the entrypoint script and make it executable
+COPY ./docker/entrypoint.sh /app/docker/entrypoint.sh
+RUN chmod +x /app/docker/entrypoint.sh
+
+# Set the entrypoint and default command
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
+CMD ["python", "main.py"]
