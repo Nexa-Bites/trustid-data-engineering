@@ -1,4 +1,4 @@
-# Use a full Debian-based Python image instead of slim for better compatibility
+# Use Python 3.9 as the base image
 FROM python:3.9-bullseye
 
 # Set the working directory
@@ -10,29 +10,28 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libffi-dev \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libsodium-dev \
+    python3-pip \
+    software-properties-common \
+    gnupg2 \
+    apt-transport-https \
+    ca-certificates
 
-# Download and install the Indy SDK manually
-RUN curl -L https://github.com/hyperledger/indy-sdk/releases/download/v1.16.0/libindy_1.16.0_ubuntu_20.04.deb -o libindy.deb && \
-    dpkg -i libindy.deb || apt-get install -f -y && \
-    rm libindy.deb
+# Fix the Sovrin repository configuration
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88 \
+    && echo "deb https://repo.sovrin.org/sdk/deb bionic stable" > /etc/apt/sources.list.d/sovrin.list \
+    && apt-get update \
+    && apt-get install -y libindy
 
-# Copy and install Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create a directory for storing generated keys
-RUN mkdir -p /app/keys
-
-# Copy the entire project
+# Copy project files
 COPY . .
 
-# Ensure the entrypoint script is executable
-COPY entrypoint.sh /app/entrypoint.sh
+# Set permissions for entrypoint
 RUN chmod +x /app/entrypoint.sh
 
-# Set the entrypoint script
+# Run the entrypoint script
 ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Default command (will be executed after entrypoint)
-CMD ["python", "generate_keys.py"]

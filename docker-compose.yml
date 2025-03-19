@@ -18,8 +18,8 @@ services:
     restart: always  # Ensures app restarts if it crashes
     depends_on:
       - postgres
-    environment:
-      DB_URL: "postgresql://user:password@postgres:5432/trustid"
+    env_file:
+      - .env  # ✅ Load environment variables from .env file
     ports:
       - "8000:8000"
     volumes:
