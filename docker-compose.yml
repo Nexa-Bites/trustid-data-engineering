@@ -19,12 +19,13 @@ services:
     depends_on:
       - postgres
     environment:
-      DB_URL: "postgresql://user:password@postgres:5432/trustid"  # Matches .env
+      DB_URL: "postgresql://user:password@postgres:5432/trustid"
     ports:
       - "8000:8000"
     volumes:
-      - ./entrypoint.sh:/app/entrypoint.sh  # Updated path to match root directory
-    entrypoint: ["/bin/sh", "/app/entrypoint.sh"]  # Updated path
+      - ./keys:/app/keys  # Persist keys across restarts
+      - ./entrypoint.sh:/app/entrypoint.sh  # Ensures entrypoint script is mounted properly
+    entrypoint: ["/bin/sh", "/app/entrypoint.sh"]
 
 volumes:
   postgres_data:

@@ -1,5 +1,7 @@
 import os
 
+paaword= "Hack#2025"
+
 # Define the project structure
 project_structure = {
     "data_ingestion": [

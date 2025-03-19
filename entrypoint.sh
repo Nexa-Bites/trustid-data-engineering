@@ -1,18 +1,19 @@
-#!/bin/sh
-
-# Exit script on any error
+#!/bin/bash
 set -e
 
-echo "Waiting for PostgreSQL to start..."
-while ! nc -z postgres 5432; do
-  sleep 1
-done
-echo "PostgreSQL is up and running."
+KEYS_DIR="/app/keys"
+KEY_FILE="$KEYS_DIR/my_keys.json"
 
-# Run database migrations (if using Alembic)
-echo "Applying database migrations..."
-alembic upgrade head
+# Ensure the keys directory exists
+mkdir -p "$KEYS_DIR"
 
-# Start the application
-echo "Starting the application..."
+# Check if keys already exist before generating new ones
+if [ -f "$KEY_FILE" ]; then
+    echo "Keys already exist. Skipping generation."
+else
+    echo "Generating new keys..."
+    python generate_keys.py
+fi
+
+# Run the CMD from Dockerfile
 exec "$@"
