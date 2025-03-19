@@ -19,12 +19,12 @@ services:
     depends_on:
       - postgres
     environment:
-      POSTGRES_URL: "postgresql://user:password@postgres:5432/trustid"
+      DB_URL: "postgresql://user:password@postgres:5432/trustid"  # Matches .env
     ports:
       - "8000:8000"
     volumes:
-      - ./docker/entrypoint.sh:/app/docker/entrypoint.sh  # Ensure entrypoint.sh is mounted
-    entrypoint: ["/bin/sh", "/app/docker/entrypoint.sh"]  # Explicitly define entrypoint
+      - ./entrypoint.sh:/app/entrypoint.sh  # Updated path to match root directory
+    entrypoint: ["/bin/sh", "/app/entrypoint.sh"]  # Updated path
 
 volumes:
   postgres_data:
